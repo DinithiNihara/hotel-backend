@@ -29,6 +29,32 @@ const getGuest = async (req, res) => {
 const addGuest = async (req, res) => {
   const { title, firstName, lastName, address, phone, email } = req.body;
 
+  let emptyFields = [];
+
+  if (!title) {
+    emptyFields.push("title");
+  }
+  if (!firstName) {
+    emptyFields.push("firstName");
+  }
+  if (!lastName) {
+    emptyFields.push("lastName");
+  }
+  if (!address) {
+    emptyFields.push("address");
+  }
+  if (!phone) {
+    emptyFields.push("phone");
+  }
+  if (!email) {
+    emptyFields.push("email");
+  }
+  if (emptyFields.length > 0) {
+    return res
+      .status(400)
+      .json({ error: "Please fill in all the fields", emptyFields });
+  }
+
   //   add doc to db
   try {
     const guest = await Guest.create({
@@ -54,7 +80,7 @@ const deleteGuest = async (req, res) => {
     return res.status(404).json({ error: "No guest found" });
   }
 
-  const guest = await Guest.findOneAndDelete({ _id: id });
+  const guest = await Guest.findOneAndDelete({ _id: id }, { new: true });
 
   if (!guest) {
     return res.status(404).json({ error: "No guest found" });
@@ -76,7 +102,8 @@ const updateGuest = async (req, res) => {
     { _id: id },
     {
       ...req.body,
-    }
+    },
+    { new: true }
   );
 
   if (!guest) {
