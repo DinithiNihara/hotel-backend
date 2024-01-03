@@ -27,12 +27,15 @@ const getEventVenue = async (req, res) => {
 
 // POST eventVenue
 const addEventVenue = async (req, res) => {
-  const { type, capacity, description, cost, l } = req.body;
+  const { type, venueNo, capacity, description, cost } = req.body;
 
   let emptyFields = [];
 
   if (!type) {
     emptyFields.push("type");
+  }
+  if (!venueNo) {
+    emptyFields.push("venueNo");
   }
   if (!capacity) {
     emptyFields.push("capacity");
@@ -53,6 +56,7 @@ const addEventVenue = async (req, res) => {
   try {
     const eventVenue = await EventVenue.create({
       type,
+      venueNo,
       capacity,
       description,
       cost,
@@ -72,7 +76,10 @@ const deleteEventVenue = async (req, res) => {
     return res.status(404).json({ error: "No eventVenue found" });
   }
 
-  const eventVenue = await EventVenue.findOneAndDelete({ _id: id }, { new: true });
+  const eventVenue = await EventVenue.findOneAndDelete(
+    { _id: id },
+    { new: true }
+  );
 
   if (!eventVenue) {
     return res.status(404).json({ error: "No eventVenue found" });

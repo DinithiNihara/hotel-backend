@@ -8,6 +8,10 @@ const eventVenueSchema = new Schema(
       type: String,
       required: true,
     },
+    venueNo: {
+      type: String,
+      required: true,
+    },
     capacity: {
       type: Number,
       required: true,
