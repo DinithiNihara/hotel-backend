@@ -1,10 +1,58 @@
-const Room = require("../models/roomModel");
 const mongoose = require("mongoose");
+const moment = require("moment");
+const Room = require("../models/roomModel");
+const RoomReservation = require("../models/roomReservationModel");
 
 // GET all rooms
 const getRooms = async (req, res) => {
   const rooms = await Room.find({}).sort({ createdAt: -1 }); //descending order
   res.status(200).json(rooms);
+};
+
+// GET available rooms
+const getAvailableRooms = async (req, res) => {
+  const { checkIn, checkOut } = req.query;
+
+  // Parse dates using moment.js
+  const checkInDate = moment(checkIn, "YYYY-MM-DD");
+  const checkOutDate = moment(checkOut, "YYYY-MM-DD");
+
+  // Validate dates
+  if (!checkInDate.isValid() || !checkOutDate.isValid()) {
+    return res.status(400).send({ message: "Invalid date format" });
+  }
+
+  try {
+    // Get all room reservations
+    const allRoomReservations = await RoomReservation.find({});
+
+    let rooms;
+
+    if (allRoomReservations.length === 0) {
+      // If there are no room reservations, return all rooms
+      rooms = await Room.find({});
+    } else {
+      // Find room reservations that do not overlap with the given dates
+      const roomReservations = await RoomReservation.find({
+        $or: [
+          { checkOut: { $lt: checkInDate.toDate() } }, // Reservation ends before the new check-in date
+          { checkIn: { $gt: checkOutDate.toDate() } }, // Reservation starts after the new check-out date
+        ],
+      }).select("room"); // Project only the room field
+
+      // Extract the room IDs from the reservations
+      const roomIds = roomReservations.map((reservation) => reservation.room);
+
+      // Find rooms using the extracted room IDs
+      rooms = await Room.find({
+        _id: { $in: roomIds },
+      });
+    }
+
+    res.status(200).json(rooms);
+  } catch (error) {
+    res.status(500).send({ message: "Server error", error });
+  }
 };
 
 // GET a room
@@ -137,6 +185,7 @@ const updateRoom = async (req, res) => {
 
 module.exports = {
   getRooms,
+  getAvailableRooms,
   getRoom,
   addRoom,
   deleteRoom,

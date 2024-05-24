@@ -1,6 +1,7 @@
 const express = require("express");
 const {
   getRooms,
+  getAvailableRooms,
   getRoom,
   addRoom,
   deleteRoom,
@@ -11,6 +12,9 @@ const router = express.Router();
 
 // GET all rooms
 router.get("/", getRooms);
+
+// GET all available rooms
+router.get("/available", getAvailableRooms);
 
 // GET room
 router.get("/:id", getRoom);
