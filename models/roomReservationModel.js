@@ -20,9 +20,34 @@ const roomReservationSchema = new Schema(
       type: mongoose.Types.ObjectId,
       ref: "Guest",
     },
-    room: {
-      type: mongoose.Types.ObjectId,
-      ref: "Room",
+    rooms: [
+      {
+        type: mongoose.Types.ObjectId,
+        ref: "Room",
+      },
+    ],
+    extras: [
+      {
+        extraId: Number,
+        name: String,
+        cost: Number,
+        costText: String,
+      },
+    ],
+    paymentDetails: [
+      {
+        payment: String,
+        cost: Number,
+        type: String,
+      },
+    ],
+    status: {
+      type: String,
+      required: true,
+    },
+    total: {
+      type: Number,
+      required: true,
     },
   },
   { timestamps: true }

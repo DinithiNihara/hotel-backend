@@ -29,7 +29,17 @@ const getRoomReservation = async (req, res) => {
 
 // POST roomReservation
 const addRoomReservation = async (req, res) => {
-  const { type, checkIn, checkOut, guest, room } = req.body;
+  const {
+    type,
+    checkIn,
+    checkOut,
+    guest,
+    rooms,
+    extras,
+    paymentDetails,
+    status,
+    total,
+  } = req.body;
 
   let emptyFields = [];
 
@@ -45,8 +55,20 @@ const addRoomReservation = async (req, res) => {
   if (!guest) {
     emptyFields.push("guest");
   }
-  if (!room) {
-    emptyFields.push("room");
+  if (!rooms) {
+    emptyFields.push("rooms");
+  }
+  if (!extras) {
+    emptyFields.push("extras");
+  }
+  if (!paymentDetails) {
+    emptyFields.push("paymentDetails");
+  }
+  if (!status) {
+    emptyFields.push("status");
+  }
+  if (!total) {
+    emptyFields.push("total");
   }
   if (emptyFields.length > 0) {
     return res
@@ -61,7 +83,11 @@ const addRoomReservation = async (req, res) => {
       checkIn,
       checkOut,
       guest,
-      room,
+      rooms,
+      extras,
+      paymentDetails,
+      status,
+      total,
     });
     res.status(200).json(roomReservation);
   } catch (error) {

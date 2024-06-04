@@ -41,11 +41,11 @@ const getAvailableRooms = async (req, res) => {
       }).select("room"); // Project only the room field
 
       // Extract the room IDs from the reservations
-      const roomIds = roomReservations.map((reservation) => reservation.room);
+      const rooms = roomReservations.map((reservation) => reservation.room);
 
       // Find rooms using the extracted room IDs
       rooms = await Room.find({
-        _id: { $in: roomIds },
+        _id: { $in: rooms },
       });
     }
 
