@@ -5,6 +5,7 @@ const mongoose = require("mongoose");
 const guestRoutes = require("./routes/guests");
 const roomRoutes = require("./routes/rooms");
 const eventVenueRoutes = require("./routes/eventVenues");
+const roomReservations = require("./routes/roomReservations");
 
 // express app
 const app = express();
@@ -21,6 +22,7 @@ app.use((req, res, next) => {
 app.use("/api/guests", guestRoutes);
 app.use("/api/rooms", roomRoutes);
 app.use("/api/eventVenues", eventVenueRoutes);
+app.use("/api/roomReservations", roomReservations);
 
 // connect to db
 mongoose

@@ -2,6 +2,13 @@ const mongoose = require("mongoose");
 
 const Schema = mongoose.Schema;
 
+const paymentDetailsSchema = new mongoose.Schema({
+  payment: String,
+  cost: Number,
+  type: String,
+  date: Date,
+});
+
 const roomReservationSchema = new Schema(
   {
     type: {
@@ -34,13 +41,7 @@ const roomReservationSchema = new Schema(
         costText: String,
       },
     ],
-    paymentDetails: [
-      {
-        payment: String,
-        cost: Number,
-        type: String,
-      },
-    ],
+    paymentDetails: [paymentDetailsSchema],
     status: {
       type: String,
       required: true,
