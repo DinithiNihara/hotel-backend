@@ -53,7 +53,7 @@ const getAvailableRooms = async (req, res) => {
       );
 
       // Find available rooms by excluding reserved rooms
-      availableRooms = await Room.find({
+      rooms = await Room.find({
         _id: { $nin: reservedRoomIds },
       });
       // old
@@ -74,7 +74,7 @@ const getAvailableRooms = async (req, res) => {
       // });
     }
 
-    res.status(200).json(availableRooms);
+    res.status(200).json(rooms);
   } catch (error) {
     res.status(500).send({ message: "Server error", error });
   }
