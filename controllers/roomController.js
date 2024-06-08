@@ -14,20 +14,14 @@ const getAvailableRooms = async (req, res) => {
   const { checkIn, checkOut } = req.query;
 
   // Parse dates using moment.js
-  const checkInDate = moment(checkIn, "YYYY-MM-DD");
-  const checkOutDate = moment(checkOut, "YYYY-MM-DD");
-
-  // Validate dates
-  if (!checkInDate.isValid() || !checkOutDate.isValid()) {
-    return res.status(400).send({ message: "Invalid date format" });
-  }
+  const checkInDate = moment(checkIn, "YYYY-MM-DD").format("YYYY-MM-DD");
+  const checkOutDate = moment(checkOut, "YYYY-MM-DD").format("YYYY-MM-DD");
 
   try {
     // Get all room reservations
     const allRoomReservations = await RoomReservation.find({});
 
     let rooms;
-    let availableRooms;
 
     if (allRoomReservations.length === 0) {
       // If there are no room reservations, return all rooms
@@ -36,17 +30,29 @@ const getAvailableRooms = async (req, res) => {
       // Find reservations that overlap with the given dates
       const overlappingReservations = await RoomReservation.find({
         $or: [
+          // checkInDate is in between reservation dates
           {
-            checkIn: { $lt: checkOutDate.toDate() },
-            checkOut: { $gt: checkInDate.toDate() },
-          }, // Reservation overlaps with provided dates
-          { checkIn: { $lte: checkOutDate.toDate() } }, // Reservation ends on or before the check-out date
-          { checkOut: { $gte: checkInDate.toDate() } }, // Reservation starts on or after the check-in date
+            checkIn: { $lte: checkInDate },
+            checkOut: { $gte: checkInDate },
+          },
+          // checkOutDate is in between reservation dates
+          {
+            checkIn: { $lte: checkOutDate },
+            checkOut: { $gte: checkOutDate },
+          },
+          // checkInDate & checkOutDate are in between reservation dates
+          {
+            checkIn: { $lte: checkInDate },
+            checkOut: { $gte: checkOutDate },
+          },
+          // reservation dates are in between checkInDate & checkOutDate
+          {
+            checkIn: { $gte: checkInDate },
+            checkOut: { $lte: checkOutDate },
+          },
         ],
       }).select("rooms");
-      console.log("----------overlappingReservations");
-      console.log(overlappingReservations);
-      console.log("----------overlappingReservations");
+
       // Extract room IDs from overlapping reservations
       const reservedRoomIds = overlappingReservations.flatMap(
         (reservation) => reservation.rooms
@@ -56,22 +62,6 @@ const getAvailableRooms = async (req, res) => {
       rooms = await Room.find({
         _id: { $nin: reservedRoomIds },
       });
-      // old
-      // // Find room reservations that do not overlap with the given dates
-      // const roomReservations = await RoomReservation.find({
-      //   $or: [
-      //     { checkOut: { $lt: checkInDate.toDate() } }, // Reservation ends before the new check-in date
-      //     { checkIn: { $gt: checkOutDate.toDate() } }, // Reservation starts after the new check-out date
-      //   ],
-      // }).select("room"); // Project only the room field
-
-      // // Extract the room IDs from the reservations
-      // const rooms = roomReservations.map((reservation) => reservation.room);
-
-      // // Find rooms using the extracted room IDs
-      // rooms = await Room.find({
-      //   _id: { $in: rooms },
-      // });
     }
 
     res.status(200).json(rooms);
