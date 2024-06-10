@@ -2,6 +2,7 @@ require("dotenv").config();
 
 const express = require("express");
 const mongoose = require("mongoose");
+const userRoutes = require("./routes/users");
 const guestRoutes = require("./routes/guests");
 const roomRoutes = require("./routes/rooms");
 const eventVenueRoutes = require("./routes/eventVenues");
@@ -19,6 +20,7 @@ app.use((req, res, next) => {
 });
 
 // routes
+app.use("/api/users", userRoutes);
 app.use("/api/guests", guestRoutes);
 app.use("/api/rooms", roomRoutes);
 app.use("/api/eventVenues", eventVenueRoutes);
