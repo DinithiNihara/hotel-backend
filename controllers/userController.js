@@ -1,5 +1,7 @@
 const User = require("../models/userModel");
 const mongoose = require("mongoose");
+const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
 
 // GET all users
 const getUsers = async (req, res) => {
@@ -48,19 +50,43 @@ const addUser = async (req, res) => {
       .status(400)
       .json({ error: "Please fill in all the fields", emptyFields });
   }
+  const hashedPassword = await bcrypt.hash(password, 10);
 
   //   add doc to db
   try {
     const user = await User.create({
       userName,
       email,
-      password,
+      password: hashedPassword,
       role,
     });
     res.status(200).json(user);
   } catch (error) {
     res.status(400).json({ error: error.message });
   }
+};
+
+const loginUser = async (req, res) => {
+  const { userName, password } = req.body;
+  const user = await User.findOne({ userName });
+
+  if (!user) {
+    return res.json({ message: "User doesn't exist" });
+  }
+
+  const isPasswordValid = await bcrypt.compare(password, user.password);
+
+  if (!isPasswordValid) {
+    return res.json({ message: "Username or Password is incorrect" });
+  }
+
+  const token = jwt.sign({ id: user._id, role: user.role }, "secret");
+  res.json({
+    token,
+    userID: user._id,
+    username: user.userName,
+    role: user.role,
+  });
 };
 
 // DELETE a user
@@ -90,10 +116,13 @@ const updateUser = async (req, res) => {
     return res.status(404).json({ error: "No user found" });
   }
 
+  const hashedPassword = await bcrypt.hash(req.body.password, 10);
+
   const user = await User.findOneAndUpdate(
     { _id: id },
     {
       ...req.body,
+      password: hashedPassword,
     },
     { new: true }
   );
@@ -109,6 +138,7 @@ module.exports = {
   getUsers,
   getUser,
   addUser,
+  loginUser,
   deleteUser,
   updateUser,
 };
