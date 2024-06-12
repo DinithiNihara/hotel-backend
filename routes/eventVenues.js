@@ -1,6 +1,7 @@
 const express = require("express");
 const {
   getEventVenues,
+  getAvailableVenues,
   getEventVenue,
   addEventVenue,
   deleteEventVenue,
@@ -11,6 +12,9 @@ const router = express.Router();
 
 // GET all eventVenues
 router.get("/", getEventVenues);
+
+// GET all available venues
+router.get("/available", getAvailableVenues);
 
 // GET eventVenue
 router.get("/:id", getEventVenue);

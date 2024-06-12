@@ -116,13 +116,19 @@ const updateUser = async (req, res) => {
     return res.status(404).json({ error: "No user found" });
   }
 
-  const hashedPassword = await bcrypt.hash(req.body.password, 10);
+  // Destructure the fields from req.body
+  const { password, ...otherFields } = req.body;
+
+  // Check if password is provided and not an empty string
+  if (password && password !== "") {
+    const hashedPassword = await bcrypt.hash(password, 10);
+    otherFields.password = hashedPassword;
+  }
 
   const user = await User.findOneAndUpdate(
     { _id: id },
     {
-      ...req.body,
-      password: hashedPassword,
+      ...otherFields,
     },
     { new: true }
   );
