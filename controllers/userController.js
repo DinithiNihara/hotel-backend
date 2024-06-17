@@ -69,15 +69,17 @@ const addUser = async (req, res) => {
 const loginUser = async (req, res) => {
   const { userName, password } = req.body;
   const user = await User.findOne({ userName });
-
+  let emptyFields = [];
   if (!user) {
-    return res.json({ message: "User doesn't exist" });
+    return res.status(404).json({ error: "User doesn't exist", emptyFields });
   }
 
   const isPasswordValid = await bcrypt.compare(password, user.password);
 
   if (!isPasswordValid) {
-    return res.json({ message: "Username or Password is incorrect" });
+    return res
+      .status(404)
+      .json({ error: "Username or Password is incorrect", emptyFields });
   }
 
   const token = jwt.sign({ id: user._id, role: user.role }, "secret");
@@ -86,6 +88,7 @@ const loginUser = async (req, res) => {
     userID: user._id,
     username: user.userName,
     role: user.role,
+    emptyFields,
   });
 };
 
