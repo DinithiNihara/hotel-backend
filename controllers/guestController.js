@@ -27,7 +27,8 @@ const getGuest = async (req, res) => {
 
 // POST a guest
 const addGuest = async (req, res) => {
-  const { title, firstName, lastName, address, phone, email } = req.body;
+  const { title, firstName, lastName, address, nicPassport, phone, email } =
+    req.body;
 
   let emptyFields = [];
 
@@ -42,6 +43,9 @@ const addGuest = async (req, res) => {
   }
   if (!address) {
     emptyFields.push("address");
+  }
+  if (!nicPassport) {
+    emptyFields.push("nicPassport");
   }
   if (!phone) {
     emptyFields.push("phone");
@@ -62,6 +66,7 @@ const addGuest = async (req, res) => {
       firstName,
       lastName,
       address,
+      nicPassport,
       phone,
       email,
     });

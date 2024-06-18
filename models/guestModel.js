@@ -20,8 +20,12 @@ const guestSchema = new Schema(
       type: String,
       required: true,
     },
+    nicPassport: {
+      type: String,
+      required: true,
+    },
     phone: {
-      type: Number,
+      type: String,
       required: true,
     },
     email: {
