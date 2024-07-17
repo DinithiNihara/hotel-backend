@@ -7,6 +7,24 @@ const getGuests = async (req, res) => {
   res.status(200).json(guests);
 };
 
+// Search guest
+const searchGuest = async (req, res) => {
+  const { term } = req.params;
+  try {
+    const searchRegex = new RegExp(term, "i"); // case-insensitive search
+    const guests = await Guest.find({
+      $or: [
+        { firstName: searchRegex },
+        { lastName: searchRegex },
+        { nicPassport: searchRegex },
+      ],
+    });
+    res.status(200).json(guests);
+  } catch (error) {
+    res.status(500).json({ message: "Server Error" });
+  }
+};
+
 // GET a guest
 const getGuest = async (req, res) => {
   const { id } = req.params;
@@ -120,6 +138,7 @@ const updateGuest = async (req, res) => {
 
 module.exports = {
   getGuests,
+  searchGuest,
   getGuest,
   addGuest,
   deleteGuest,

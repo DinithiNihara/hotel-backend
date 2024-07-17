@@ -1,6 +1,7 @@
 const express = require("express");
 const {
   getRooms,
+  searchRoom,
   getAvailableRooms,
   getRoom,
   addRoom,
@@ -12,6 +13,8 @@ const router = express.Router();
 
 // GET all rooms
 router.get("/", getRooms);
+
+router.get("/search", searchRoom);
 
 // GET all available rooms
 router.get("/available", getAvailableRooms);

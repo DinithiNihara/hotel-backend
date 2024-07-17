@@ -9,6 +9,36 @@ const getRooms = async (req, res) => {
   res.status(200).json(rooms);
 };
 
+// Search rooms
+const searchRoom = async (req, res) => {
+  try {
+    const { term, type } = req.query;
+    let query = {};
+
+    if (type) {
+      query.type = new RegExp(type, "i"); // case-insensitive search for type
+    }
+
+    if (term) {
+      try {
+        const searchRegex = new RegExp(term, "i"); // case-insensitive search
+        const cost = parseFloat(term); // Try to parse term as a number for cost
+        query.$or = [
+          { roomNo: searchRegex },
+          { occupancy: searchRegex },
+          ...(isNaN(cost) ? [] : [{ cost }]), // Add cost to query if term can be parsed as a number
+        ];
+      } catch (e) {
+        return res.status(400).json({ message: "Invalid term pattern" });
+      }
+    }
+    const rooms = await Room.find(query);
+    res.status(200).json(rooms);
+  } catch (error) {
+    res.status(500).json({ message: "Server Error" });
+  }
+};
+
 // GET available rooms
 const getAvailableRooms = async (req, res) => {
   const { checkIn, checkOut } = req.query;
@@ -200,6 +230,7 @@ const updateRoom = async (req, res) => {
 
 module.exports = {
   getRooms,
+  searchRoom,
   getAvailableRooms,
   getRoom,
   addRoom,

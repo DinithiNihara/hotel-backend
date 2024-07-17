@@ -1,40 +1,40 @@
-const RoomReservation = require("../models/roomReservationModel");
+const EventVenueReservation = require("../models/eventVenueReservationModel");
 const mongoose = require("mongoose");
 
-// GET all roomReservations
-const getRoomReservations = async (req, res) => {
-  const roomReservations = await RoomReservation.find({}).sort({
+// GET all eventVenueReservations
+const getEventVenueReservations = async (req, res) => {
+  const eventVenueReservations = await EventVenueReservation.find({}).sort({
     createdAt: -1,
   }); //descending order
-  res.status(200).json(roomReservations);
+  res.status(200).json(eventVenueReservations);
 };
 
-// GET roomReservation
-const getRoomReservation = async (req, res) => {
+// GET eventVenueReservation
+const getEventVenueReservation = async (req, res) => {
   const { id } = req.params;
 
   // invalid - if it doesn't have the same length as an ObjectId
   if (!mongoose.Types.ObjectId.isValid(id)) {
-    return res.status(404).json({ error: "No roomReservation found" });
+    return res.status(404).json({ error: "No eventVenueReservation found" });
   }
 
-  const roomReservation = await RoomReservation.findById(id);
+  const eventVenueReservation = await EventVenueReservation.findById(id);
 
-  if (!roomReservation) {
-    return res.status(404).json({ error: "No roomReservation found" });
+  if (!eventVenueReservation) {
+    return res.status(404).json({ error: "No eventVenueReservation found" });
   } else {
-    return res.status(200).json(roomReservation);
+    return res.status(200).json(eventVenueReservation);
   }
 };
 
-// POST roomReservation
-const addRoomReservation = async (req, res) => {
+// POST eventVenueReservation
+const addEventVenueReservation = async (req, res) => {
   const {
     type,
     checkIn,
     checkOut,
     guest,
-    rooms,
+    eventVenues,
     extras,
     paymentDetails,
     status,
@@ -55,8 +55,8 @@ const addRoomReservation = async (req, res) => {
   if (!guest) {
     emptyFields.push("guest");
   }
-  if (!rooms) {
-    emptyFields.push("rooms");
+  if (!eventVenues) {
+    emptyFields.push("eventVenues");
   }
   if (!extras) {
     emptyFields.push("extras");
@@ -78,54 +78,54 @@ const addRoomReservation = async (req, res) => {
 
   //   add doc to db
   try {
-    const roomReservation = await RoomReservation.create({
+    const eventVenueReservation = await EventVenueReservation.create({
       type,
       checkIn,
       checkOut,
       guest,
-      rooms,
+      eventVenues,
       extras,
       paymentDetails,
       status,
       total,
     });
-    res.status(200).json(roomReservation);
+    res.status(200).json(eventVenueReservation);
   } catch (error) {
     res.status(400).json({ error: error.message });
   }
 };
 
-// DELETE roomReservation
-const deleteRoomReservation = async (req, res) => {
+// DELETE eventVenueReservation
+const deleteEventVenueReservation = async (req, res) => {
   const { id } = req.params;
 
   // invalid - if it doesn't have the same length as an ObjectId
   if (!mongoose.Types.ObjectId.isValid(id)) {
-    return res.status(404).json({ error: "No roomReservation found" });
+    return res.status(404).json({ error: "No eventVenueReservation found" });
   }
 
-  const roomReservation = await RoomReservation.findOneAndDelete(
+  const eventVenueReservation = await EventVenueReservation.findOneAndDelete(
     { _id: id },
     { new: true }
   );
 
-  if (!roomReservation) {
-    return res.status(404).json({ error: "No roomReservation found" });
+  if (!eventVenueReservation) {
+    return res.status(404).json({ error: "No eventVenueReservation found" });
   } else {
-    return res.status(200).json(roomReservation);
+    return res.status(200).json(eventVenueReservation);
   }
 };
 
-// UPDATE roomReservation
-const updateRoomReservation = async (req, res) => {
+// UPDATE eventVenueReservation
+const updateEventVenueReservation = async (req, res) => {
   const { id } = req.params;
 
   // invalid - if it doesn't have the same length as an ObjectId
   if (!mongoose.Types.ObjectId.isValid(id)) {
-    return res.status(404).json({ error: "No roomReservation found" });
+    return res.status(404).json({ error: "No eventVenueReservation found" });
   }
 
-  const roomReservation = await RoomReservation.findOneAndUpdate(
+  const eventVenueReservation = await EventVenueReservation.findOneAndUpdate(
     { _id: id },
     {
       ...req.body,
@@ -133,17 +133,17 @@ const updateRoomReservation = async (req, res) => {
     { new: true }
   );
 
-  if (!roomReservation) {
-    return res.status(404).json({ error: "No roomReservation found" });
+  if (!eventVenueReservation) {
+    return res.status(404).json({ error: "No eventVenueReservation found" });
   } else {
-    return res.status(200).json(roomReservation);
+    return res.status(200).json(eventVenueReservation);
   }
 };
 
 module.exports = {
-  getRoomReservations,
-  getRoomReservation,
-  addRoomReservation,
-  deleteRoomReservation,
-  updateRoomReservation,
+  getEventVenueReservations,
+  getEventVenueReservation,
+  addEventVenueReservation,
+  deleteEventVenueReservation,
+  updateEventVenueReservation,
 };

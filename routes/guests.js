@@ -1,6 +1,7 @@
 const express = require("express");
 const {
   getGuests,
+  searchGuest,
   getGuest,
   addGuest,
   deleteGuest,
@@ -11,6 +12,9 @@ const router = express.Router();
 
 // GET all guests
 router.get("/", getGuests);
+
+// Search guest
+router.get("/:term", searchGuest);
 
 // GET a guest
 router.get("/:id", getGuest);
