@@ -8,6 +8,7 @@ const roomRoutes = require("./routes/rooms");
 const eventVenueRoutes = require("./routes/eventVenues");
 const roomReservations = require("./routes/roomReservations");
 const eventVenueReservations = require("./routes/eventVenueReservations");
+const reportsRoutes = require("./routes/reports");
 
 // express app
 const app = express();
@@ -27,6 +28,7 @@ app.use("/api/rooms", roomRoutes);
 app.use("/api/eventVenues", eventVenueRoutes);
 app.use("/api/roomReservations", roomReservations);
 app.use("/api/eventVenueReservations", eventVenueReservations);
+app.use("/api/reports", reportsRoutes);
 
 // connect to db
 mongoose
