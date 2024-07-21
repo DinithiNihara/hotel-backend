@@ -1,8 +1,77 @@
 const mongoose = require("mongoose");
 const RoomReservation = require("../models/roomReservationModel");
 const Room = require("../models/roomModel");
+const EventVenueReservation = require("../models/eventVenueReservationModel");
+const EventVenue = require("../models/eventVenueModel");
 
-// GET all roomReservations for a specific year
+// GET today's room reservations
+const getTodayRoomReservations = async (req, res) => {
+  try {
+    // Get today's start and end date
+    const startOfDay = new Date();
+    startOfDay.setHours(0, 0, 0, 0);
+
+    const endOfDay = new Date();
+    endOfDay.setHours(23, 59, 59, 999);
+
+    // Find all rooms
+    const totalRoomsCount = await Room.countDocuments({});
+
+    // Find today's room reservations
+    const todayReservations = await RoomReservation.find({
+      checkIn: {
+        $gte: startOfDay,
+        $lt: endOfDay,
+      },
+    });
+
+    const todayRoomReservationsCount = todayReservations.length;
+    const todayAvailableRoomsCount = totalRoomsCount - todayRoomReservationsCount;
+
+    res.status(200).json({
+      todayAvailableRoomsCount,
+      todayRoomReservationsCount,
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+// GET today's venue reservations
+const getTodayVenueReservations = async (req, res) => {
+  try {
+    // Get today's start and end date
+    const startOfDay = new Date();
+    startOfDay.setHours(0, 0, 0, 0);
+
+    const endOfDay = new Date();
+    endOfDay.setHours(23, 59, 59, 999);
+
+    // Find all venues
+    const totalVenuesCount = await EventVenue.countDocuments({});
+
+    // Find today's venue reservations
+    const todayReservations = await EventVenueReservation.find({
+      checkIn: {
+        $gte: startOfDay,
+        $lt: endOfDay,
+      },
+    });
+
+    const todayVenueReservationsCount = todayReservations.length;
+    const todayAvailableVenuesCount =
+      totalVenuesCount - todayVenueReservationsCount;
+
+    res.status(200).json({
+      todayAvailableVenuesCount,
+      todayVenueReservationsCount,
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+// GET all roomReservations details for a specific year
 const getRoomReservationsYearlyData = async (req, res) => {
   try {
     const year = parseInt(req.params.year); // Get the year from params
@@ -12,7 +81,6 @@ const getRoomReservationsYearlyData = async (req, res) => {
     const endOfYear = new Date(`${year + 1}-01-01T00:00:00.000Z`);
     console.log(startOfYear);
     console.log(endOfYear);
-
     // Fetch room reservations for the specified year
     const roomReservationsDetails = await RoomReservation.find({
       checkIn: { $gte: startOfYear, $lt: endOfYear },
@@ -48,5 +116,7 @@ const getRoomReservationsYearlyData = async (req, res) => {
 };
 
 module.exports = {
+  getTodayRoomReservations,
+  getTodayVenueReservations,
   getRoomReservationsYearlyData,
 };
