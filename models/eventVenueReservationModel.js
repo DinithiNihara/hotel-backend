@@ -27,6 +27,12 @@ const eventVenueReservationSchema = new Schema(
       type: mongoose.Types.ObjectId,
       ref: "Guest",
     },
+    eventVenues: [
+      {
+        type: mongoose.Types.ObjectId,
+        ref: "EventVenue",
+      },
+    ],
     rooms: [
       {
         type: mongoose.Types.ObjectId,
