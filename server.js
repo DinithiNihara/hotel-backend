@@ -2,6 +2,8 @@ require("dotenv").config();
 
 const express = require("express");
 const mongoose = require("mongoose");
+const path = require("path");
+
 const userRoutes = require("./routes/users");
 const guestRoutes = require("./routes/guests");
 const roomRoutes = require("./routes/rooms");
@@ -21,6 +23,9 @@ app.use((req, res, next) => {
   next();
 });
 
+// Serve static files from the 'uploads' directory
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+
 // routes
 app.use("/api/users", userRoutes);
 app.use("/api/guests", guestRoutes);
@@ -34,7 +39,7 @@ app.use("/api/reports", reportsRoutes);
 mongoose
   .connect(process.env.MONGO_URI)
   .then(() => {
-    // to listen for resquests
+    // to listen for requests
     app.listen(process.env.PORT, () => {
       console.log("connected to db & listening on port ", process.env.PORT);
     });

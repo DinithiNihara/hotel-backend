@@ -90,7 +90,6 @@ const getEventVenue = async (req, res) => {
 // POST eventVenue
 const addEventVenue = async (req, res) => {
   const { type, venueNo, capacity, description, cost } = req.body;
-
   let emptyFields = [];
 
   if (!type) {
@@ -114,7 +113,9 @@ const addEventVenue = async (req, res) => {
       .json({ error: "Please fill in all the fields", emptyFields });
   }
 
-  //   add doc to db
+  const image = req.file ? `/uploads/${req.file.filename}` : null;
+
+  // Add doc to db
   try {
     const eventVenue = await EventVenue.create({
       type,
@@ -122,12 +123,14 @@ const addEventVenue = async (req, res) => {
       capacity,
       description,
       cost,
+      image,
     });
     res.status(200).json(eventVenue);
   } catch (error) {
     res.status(400).json({ error: error.message });
   }
 };
+
 
 // DELETE eventVenue
 const deleteEventVenue = async (req, res) => {
@@ -154,16 +157,21 @@ const deleteEventVenue = async (req, res) => {
 const updateEventVenue = async (req, res) => {
   const { id } = req.params;
 
-  // invalid - if it doesn't have the same length as an ObjectId
+  // Check if id is valid
   if (!mongoose.Types.ObjectId.isValid(id)) {
     return res.status(404).json({ error: "No eventVenue found" });
   }
 
+  const image = req.file ? `/uploads/${req.file.filename}` : req.body.image;
+
+  const updateData = {
+    ...req.body,
+    image,
+  };
+
   const eventVenue = await EventVenue.findOneAndUpdate(
     { _id: id },
-    {
-      ...req.body,
-    },
+    updateData,
     { new: true }
   );
 
@@ -173,6 +181,7 @@ const updateEventVenue = async (req, res) => {
     return res.status(200).json(eventVenue);
   }
 };
+
 
 module.exports = {
   getEventVenues,

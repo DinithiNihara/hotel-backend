@@ -26,7 +26,8 @@ const getTodayRoomReservations = async (req, res) => {
     });
 
     const todayRoomReservationsCount = todayReservations.length;
-    const todayAvailableRoomsCount = totalRoomsCount - todayRoomReservationsCount;
+    const todayAvailableRoomsCount =
+      totalRoomsCount - todayRoomReservationsCount;
 
     res.status(200).json({
       todayAvailableRoomsCount,
@@ -115,8 +116,54 @@ const getRoomReservationsYearlyData = async (req, res) => {
   }
 };
 
+const getVenueReservationsYearlyData = async (req, res) => {
+  try {
+    const year = parseInt(req.params.year); // Get the year from params
+
+    // Define the start and end of the year
+    const startOfYear = new Date(`${year}-01-01T00:00:00.000Z`);
+    const endOfYear = new Date(`${year + 1}-01-01T00:00:00.000Z`);
+    console.log(startOfYear);
+    console.log(endOfYear);
+    // Fetch venue reservations for the specified year
+    const venueReservationsDetails = await EventVenueReservation.find({
+      checkIn: { $gte: startOfYear, $lt: endOfYear },
+    });
+
+    // For each venue reservation, fetch venue types and add to venues array
+    const updatedReservations = await Promise.all(
+      venueReservationsDetails.map(async (reservation) => {
+        const venueTypesPromises = reservation.eventVenues.map(
+          async (venueId) => {
+            // Fetch the venue by ID
+            const venue = await EventVenue.findById(venueId);
+            return venue
+              ? { venueId, type: venue.type }
+              : { venueId, type: "Unknown" };
+          }
+        );
+
+        const venueTypes = await Promise.all(venueTypesPromises);
+
+        // Update the reservation object with venue types
+        return {
+          ...reservation.toObject(),
+          venues: venueTypes,
+        };
+      })
+    );
+
+    // Send the updated reservations in the response
+    res.status(200).json(updatedReservations);
+  } catch (error) {
+    console.error("Error fetching venue reservations:", error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+};
+
 module.exports = {
   getTodayRoomReservations,
   getTodayVenueReservations,
   getRoomReservationsYearlyData,
+  getVenueReservationsYearlyData,
 };

@@ -3,6 +3,7 @@ const {
   getTodayRoomReservations,
   getTodayVenueReservations,
   getRoomReservationsYearlyData,
+  getVenueReservationsYearlyData
 } = require("../controllers/reportController");
 
 const router = express.Router();
@@ -15,5 +16,7 @@ router.get("/venuesStatus", getTodayVenueReservations);
 
 // GET roomReservations - YearlyData
 router.get("/reservations/:year", getRoomReservationsYearlyData);
+
+router.get("/venueReservations/:year", getVenueReservationsYearlyData);
 
 module.exports = router;
