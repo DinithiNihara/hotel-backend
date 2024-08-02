@@ -23,6 +23,7 @@ const getTodayRoomReservations = async (req, res) => {
         $gte: startOfDay,
         $lt: endOfDay,
       },
+      status: { $ne: "Cancelled" },
     });
 
     const todayRoomReservationsCount = todayReservations.length;
@@ -57,6 +58,7 @@ const getTodayVenueReservations = async (req, res) => {
         $gte: startOfDay,
         $lt: endOfDay,
       },
+      status: { $ne: "Cancelled" },
     });
 
     const todayVenueReservationsCount = todayReservations.length;
@@ -85,6 +87,7 @@ const getRoomReservationsYearlyData = async (req, res) => {
     // Fetch room reservations for the specified year
     const roomReservationsDetails = await RoomReservation.find({
       checkIn: { $gte: startOfYear, $lt: endOfYear },
+      status: { $ne: "Cancelled" },
     });
 
     // For each room reservation, fetch room types and add to rooms array
@@ -128,6 +131,7 @@ const getVenueReservationsYearlyData = async (req, res) => {
     // Fetch venue reservations for the specified year
     const venueReservationsDetails = await EventVenueReservation.find({
       checkIn: { $gte: startOfYear, $lt: endOfYear },
+      status: { $ne: "Cancelled" },
     });
 
     // For each venue reservation, fetch venue types and add to venues array

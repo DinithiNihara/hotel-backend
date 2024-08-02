@@ -100,6 +100,91 @@ const getAvailableRooms = async (req, res) => {
   }
 };
 
+// Search available rooms
+const searchAvailableRoom = async (req, res) => {
+  try {
+    const { term, type, checkIn, checkOut } = req.query;
+    let query = {};
+
+    // Handle search term and type
+    if (type) {
+      query.type = new RegExp(type, "i"); // case-insensitive search for type
+    }
+
+    if (term) {
+      try {
+        const searchRegex = new RegExp(term, "i"); // case-insensitive search
+        const cost = parseFloat(term); // Try to parse term as a number for cost
+        query.$or = [
+          { roomNo: searchRegex },
+          { occupancy: searchRegex },
+          ...(isNaN(cost) ? [] : [{ cost }]), // Add cost to query if term can be parsed as a number
+        ];
+      } catch (e) {
+        return res.status(400).json({ message: "Invalid term pattern" });
+      }
+    }
+
+    // Parse dates if provided
+    let availableRoomsQuery = Room.find(query);
+    if (checkIn && checkOut) {
+      const checkInDate = moment(checkIn, "YYYY-MM-DD").format("YYYY-MM-DD");
+      const checkOutDate = moment(checkOut, "YYYY-MM-DD").format("YYYY-MM-DD");
+
+      // Get all room reservations
+      const allRoomReservations = await RoomReservation.find({});
+
+      if (allRoomReservations.length > 0) {
+        // Find reservations that overlap with the given dates
+        const overlappingReservations = await RoomReservation.find({
+          $or: [
+            // checkInDate is in between reservation dates
+            {
+              checkIn: { $lte: checkInDate },
+              checkOut: { $gte: checkInDate },
+            },
+            // checkOutDate is in between reservation dates
+            {
+              checkIn: { $lte: checkOutDate },
+              checkOut: { $gte: checkOutDate },
+            },
+            // checkInDate & checkOutDate are in between reservation dates
+            {
+              checkIn: { $lte: checkInDate },
+              checkOut: { $gte: checkOutDate },
+            },
+            // reservation dates are in between checkInDate & checkOutDate
+            {
+              checkIn: { $gte: checkInDate },
+              checkOut: { $lte: checkOutDate },
+            },
+          ],
+        }).select("rooms");
+
+        // Extract room IDs from overlapping reservations
+        const reservedRoomIds = overlappingReservations.flatMap(
+          (reservation) => reservation.rooms
+        );
+        console.log(reservedRoomIds);
+        
+
+        // Modify the query to exclude reserved rooms
+        availableRoomsQuery = Room.find({
+          ...query,
+          _id: { $nin: reservedRoomIds },
+        });
+      }
+    }
+
+    // Fetch available rooms based on the combined query
+    const rooms = await availableRoomsQuery;
+
+    res.status(200).json(rooms);
+  } catch (error) {
+    res.status(500).json({ message: "Server Error", error });
+  }
+};
+
 // GET a room
 const getRoom = async (req, res) => {
   const { id } = req.params;
@@ -232,6 +317,7 @@ module.exports = {
   getRooms,
   searchRoom,
   getAvailableRooms,
+  searchAvailableRoom,
   getRoom,
   addRoom,
   deleteRoom,

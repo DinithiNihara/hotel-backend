@@ -50,12 +50,15 @@ const getAvailableVenues = async (req, res) => {
             checkOut: { $lte: checkOutDate },
           },
         ],
-      }).select("venues");
+      }).select("eventVenues");
+      console.log("overlappingReservations");
+      console.log(overlappingReservations);
 
       // Extract venue IDs from overlapping reservations
       const reservedVenueIds = overlappingReservations.flatMap(
-        (reservation) => reservation.venues
+        (reservation) => reservation.eventVenues
       );
+ 
 
       // Find available venues by excluding reserved venues
       venues = await EventVenue.find({
@@ -131,7 +134,6 @@ const addEventVenue = async (req, res) => {
   }
 };
 
-
 // DELETE eventVenue
 const deleteEventVenue = async (req, res) => {
   const { id } = req.params;
@@ -181,7 +183,6 @@ const updateEventVenue = async (req, res) => {
     return res.status(200).json(eventVenue);
   }
 };
-
 
 module.exports = {
   getEventVenues,

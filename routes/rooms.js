@@ -3,6 +3,7 @@ const {
   getRooms,
   searchRoom,
   getAvailableRooms,
+  searchAvailableRoom,
   getRoom,
   addRoom,
   deleteRoom,
@@ -18,6 +19,8 @@ router.get("/search", searchRoom);
 
 // GET all available rooms
 router.get("/available", getAvailableRooms);
+
+router.get("/searchAvailable", searchAvailableRoom);
 
 // GET room
 router.get("/:id", getRoom);
