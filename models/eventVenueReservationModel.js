@@ -27,6 +27,16 @@ const eventVenueReservationSchema = new Schema(
       type: mongoose.Types.ObjectId,
       ref: "Guest",
     },
+    package: [
+      {
+        name: String,
+        cost: Number,
+      },
+    ],
+    guestCount: {
+      type: Number,
+      required: true,
+    },
     eventVenues: [
       {
         type: mongoose.Types.ObjectId,
@@ -86,4 +96,7 @@ eventVenueReservationSchema.pre("save", async function (next) {
     next();
   }
 });
-module.exports = mongoose.model("EventVenueReservation", eventVenueReservationSchema);
+module.exports = mongoose.model(
+  "EventVenueReservation",
+  eventVenueReservationSchema
+);

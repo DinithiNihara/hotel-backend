@@ -27,6 +27,53 @@ const getRoomReservation = async (req, res) => {
   }
 };
 
+// Filter room reservations according to date
+const filterRoomReservations = async (req, res) => {
+  try {
+    const { checkIn, checkOut } = req.query;
+
+    let filteredRoomReservations = [];
+
+    if (checkIn && checkOut) {
+      const checkInDate = moment(checkIn, "YYYY-MM-DD")
+        .startOf("day")
+        .format("YYYY-MM-DD");
+      const checkOutDate = moment(checkOut, "YYYY-MM-DD")
+        .endOf("day")
+        .format("YYYY-MM-DD");
+
+      // Find reservations that overlap with the given dates
+      filteredRoomReservations = await RoomReservation.find({
+        $or: [
+          {
+            checkIn: { $lte: checkInDate },
+            checkOut: { $gte: checkInDate },
+          },
+          {
+            checkIn: { $lte: checkOutDate },
+            checkOut: { $gte: checkOutDate },
+          },
+          {
+            checkIn: { $lte: checkInDate },
+            checkOut: { $gte: checkOutDate },
+          },
+          {
+            checkIn: { $gte: checkInDate },
+            checkOut: { $lte: checkOutDate },
+          },
+        ],
+      });
+    } else {
+      // If no dates are provided,  return all reservations or handle it differently
+      filteredRoomReservations = await RoomReservation.find({});
+    }
+
+    res.status(200).json(filteredRoomReservations);
+  } catch (error) {
+    res.status(500).json({ message: "Server Error", error });
+  }
+};
+
 // POST roomReservation
 const addRoomReservation = async (req, res) => {
   const {
@@ -67,9 +114,9 @@ const addRoomReservation = async (req, res) => {
   if (!status) {
     emptyFields.push("status");
   }
-  if (!total) {
-    emptyFields.push("total");
-  }
+  // if (!total) {
+  //   emptyFields.push("total");
+  // }
   if (emptyFields.length > 0) {
     return res
       .status(400)
@@ -143,6 +190,7 @@ const updateRoomReservation = async (req, res) => {
 module.exports = {
   getRoomReservations,
   getRoomReservation,
+  filterRoomReservations,
   addRoomReservation,
   deleteRoomReservation,
   updateRoomReservation,

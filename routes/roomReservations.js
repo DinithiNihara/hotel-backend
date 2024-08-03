@@ -2,6 +2,7 @@ const express = require("express");
 const {
   getRoomReservations,
   getRoomReservation,
+  filterRoomReservations,
   addRoomReservation,
   deleteRoomReservation,
   updateRoomReservation,
@@ -14,6 +15,8 @@ router.get("/", getRoomReservations);
 
 // GET roomReservation
 router.get("/:id", getRoomReservation);
+
+router.get("/filterReservations", filterRoomReservations);
 
 // POST roomReservation
 router.post("/", addRoomReservation);
