@@ -1,5 +1,6 @@
 const RoomReservation = require("../models/roomReservationModel");
 const mongoose = require("mongoose");
+const moment = require("moment");
 
 // GET all roomReservations
 const getRoomReservations = async (req, res) => {
@@ -9,38 +10,17 @@ const getRoomReservations = async (req, res) => {
   res.status(200).json(roomReservations);
 };
 
-// GET roomReservation
-const getRoomReservation = async (req, res) => {
-  const { id } = req.params;
-
-  // invalid - if it doesn't have the same length as an ObjectId
-  if (!mongoose.Types.ObjectId.isValid(id)) {
-    return res.status(404).json({ error: "No roomReservation found" });
-  }
-
-  const roomReservation = await RoomReservation.findById(id);
-
-  if (!roomReservation) {
-    return res.status(404).json({ error: "No roomReservation found" });
-  } else {
-    return res.status(200).json(roomReservation);
-  }
-};
-
 // Filter room reservations according to date
 const filterRoomReservations = async (req, res) => {
   try {
     const { checkIn, checkOut } = req.query;
 
-    let filteredRoomReservations = [];
+    let filteredRoomReservations = {};
 
     if (checkIn && checkOut) {
-      const checkInDate = moment(checkIn, "YYYY-MM-DD")
-        .startOf("day")
-        .format("YYYY-MM-DD");
-      const checkOutDate = moment(checkOut, "YYYY-MM-DD")
-        .endOf("day")
-        .format("YYYY-MM-DD");
+      // Parse the dates and include the full day range
+      const checkInDate = moment(checkIn).startOf("day").toISOString();
+      const checkOutDate = moment(checkOut).endOf("day").toISOString();
 
       // Find reservations that overlap with the given dates
       filteredRoomReservations = await RoomReservation.find({
@@ -71,6 +51,24 @@ const filterRoomReservations = async (req, res) => {
     res.status(200).json(filteredRoomReservations);
   } catch (error) {
     res.status(500).json({ message: "Server Error", error });
+  }
+};
+
+// GET roomReservation
+const getRoomReservation = async (req, res) => {
+  const { id } = req.params;
+
+  // invalid - if it doesn't have the same length as an ObjectId
+  if (!mongoose.Types.ObjectId.isValid(id)) {
+    return res.status(404).json({ error: "No roomReservation found" });
+  }
+
+  const roomReservation = await RoomReservation.findById(id);
+
+  if (!roomReservation) {
+    return res.status(404).json({ error: "No roomReservation found" });
+  } else {
+    return res.status(200).json(roomReservation);
   }
 };
 

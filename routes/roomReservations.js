@@ -13,10 +13,11 @@ const router = express.Router();
 // GET all roomReservations
 router.get("/", getRoomReservations);
 
+// Filter roomReservations
+router.get("/filterReservations", filterRoomReservations);
+
 // GET roomReservation
 router.get("/:id", getRoomReservation);
-
-router.get("/filterReservations", filterRoomReservations);
 
 // POST roomReservation
 router.post("/", addRoomReservation);
